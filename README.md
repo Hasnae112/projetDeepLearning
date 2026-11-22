@@ -14,14 +14,17 @@ A comparative study of three deep-learning approaches to building a chatbot spec
 
 ### RAG pipeline
 
-```
-User question
-   -> cleaning / language detection (EN, FR)
-   -> hybrid retrieval: FAISS (E5 embeddings) + BM25, score = 0.6 * dense + 0.4 * BM25
-   -> CrossEncoder reranking (ms-marco-MiniLM-L-6-v2)
-   -> prompt with top contexts
-   -> FLAN-T5-base + LoRA (r=16, alpha=32, dropout=0.05)
-   -> grounded answer (Gradio UI)
+```mermaid
+flowchart TD
+    Q[User question] --> C[Cleaning and language detection EN/FR]
+    C --> D[Dense retrieval: FAISS + multilingual-e5-large]
+    C --> B[Sparse retrieval: BM25]
+    D --> M["Score fusion: 0.6 x dense + 0.4 x BM25"]
+    B --> M
+    M --> R[CrossEncoder reranking: ms-marco-MiniLM-L-6-v2]
+    R --> P[Prompt with top contexts]
+    P --> G[FLAN-T5-base + LoRA r=16, alpha=32, dropout=0.05]
+    G --> A[Grounded answer, Gradio UI]
 ```
 
 LoRA is applied to the `q` and `v` projections: only ~1.77M of ~249M parameters (0.71%) are trainable.
